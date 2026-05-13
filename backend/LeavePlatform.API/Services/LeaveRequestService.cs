@@ -9,7 +9,8 @@ namespace LeavePlatform.API.Services;
 public class LeaveRequestService(
     ILeaveRequestRepository leaveRequestRepository,
     ILeaveBalanceRepository leaveBalanceRepository,
-    IUserRepository userRepository) : ILeaveRequestService
+    IUserRepository userRepository,
+    IEmailService emailService) : ILeaveRequestService
 {
     public async Task<IEnumerable<LeaveRequestDto>> GetMyRequestsAsync(Guid userId) =>
         (await leaveRequestRepository.GetByUserIdAsync(userId)).Select(MapToDto);
@@ -49,6 +50,19 @@ public class LeaveRequestService(
 
         // Reload with navigation properties
         var full = await leaveRequestRepository.GetByIdAsync(created.Id);
+
+        // Fire-and-forget: don't fail the request if email fails
+        var employee = await userRepository.GetByIdAsync(userId);
+        if (employee is not null)
+        {
+            _ = emailService.SendLeaveRequestSubmittedAsync(
+                employee.Email,
+                $"{employee.FirstName} {employee.LastName}",
+                full!.LeaveType?.Name ?? string.Empty,
+                full.StartDate,
+                full.EndDate);
+        }
+
         return MapToDto(full!);
     }
 
@@ -64,11 +78,10 @@ public class LeaveRequestService(
         if (request.Status != LeaveStatus.Pending)
             throw new InvalidOperationException("Only pending requests can be reviewed.");
 
-        // Verify the reviewer manages this employee
         var reviewer = await userRepository.GetByIdAsync(reviewerId)
             ?? throw new KeyNotFoundException("Reviewer not found.");
 
-        if (reviewer.Role != Enums.UserRole.Admin && request.User.ManagerId != reviewerId)
+        if (reviewer.Role != UserRole.Admin && request.User.ManagerId != reviewerId)
             throw new UnauthorizedAccessException("You can only review requests from your direct reports.");
 
         request.Status = action;
@@ -89,6 +102,16 @@ public class LeaveRequestService(
         }
 
         var updated = await leaveRequestRepository.UpdateAsync(request);
+
+        // Notify employee of decision
+        var employee = request.User;
+        _ = emailService.SendLeaveRequestReviewedAsync(
+            employee.Email,
+            $"{employee.FirstName} {employee.LastName}",
+            request.LeaveType?.Name ?? string.Empty,
+            action.ToString(),
+            dto.ManagerComment);
+
         return MapToDto(updated);
     }
 
@@ -102,7 +125,6 @@ public class LeaveRequestService(
 
         if (request.Status == LeaveStatus.Approved)
         {
-            // Restore the balance
             var balance = await leaveBalanceRepository.GetByUserAndTypeAsync(
                 request.UserId, request.LeaveTypeId, request.StartDate.Year);
 
