@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="LeavePlatform.API/LeavePlatform.API.csproj" />
+  <Project Path="LeavePlatform.Tests/LeavePlatform.Tests.csproj" />
+</Solution>
