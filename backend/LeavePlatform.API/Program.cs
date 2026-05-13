@@ -74,6 +74,13 @@ builder.Services.AddScoped<IReportService, ReportService>();
 
 var app = builder.Build();
 
+// Auto-apply migrations on startup (safe: EF migrations are idempotent)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
