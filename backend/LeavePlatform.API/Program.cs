@@ -49,10 +49,12 @@ builder.Services.AddCors(options =>
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
 
 var app = builder.Build();
 
