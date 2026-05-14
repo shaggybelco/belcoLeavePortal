@@ -9,7 +9,8 @@ namespace LeavePlatform.API.Services;
 public class UserService(
     IUserRepository userRepository,
     ILeaveTypeRepository leaveTypeRepository,
-    ILeaveBalanceRepository leaveBalanceRepository) : IUserService
+    ILeaveBalanceRepository leaveBalanceRepository,
+    IAuditLogRepository auditLogRepository) : IUserService
 {
     public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
@@ -24,7 +25,7 @@ public class UserService(
         return MapToDto(user);
     }
 
-    public async Task<UserDto> CreateAsync(CreateUserDto dto)
+    public async Task<UserDto> CreateAsync(CreateUserDto dto, Guid actorId)
     {
         var existing = await userRepository.GetByEmailAsync(dto.Email);
         if (existing is not null)
@@ -46,6 +47,14 @@ public class UserService(
 
         var created = await userRepository.CreateAsync(user);
 
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = actorId,
+            Action     = "Created",
+            EntityType = "User",
+            EntityId   = created.Id.ToString()
+        });
+
         // Seed a leave balance row for each active leave type
         var leaveTypes = await leaveTypeRepository.GetAllAsync(activeOnly: true);
         foreach (var lt in leaveTypes)
@@ -63,7 +72,7 @@ public class UserService(
         return MapToDto(created);
     }
 
-    public async Task<UserDto> UpdateAsync(Guid id, UpdateUserDto dto)
+    public async Task<UserDto> UpdateAsync(Guid id, UpdateUserDto dto, Guid actorId)
     {
         var user = await userRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException("User not found.");
@@ -78,25 +87,51 @@ public class UserService(
         user.ManagerId = dto.ManagerId;
         user.IsActive = dto.IsActive;
 
-        return MapToDto(await userRepository.UpdateAsync(user));
+        var updated = await userRepository.UpdateAsync(user);
+
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = actorId,
+            Action     = "Updated",
+            EntityType = "User",
+            EntityId   = id.ToString()
+        });
+
+        return MapToDto(updated);
     }
 
-    public async Task DeactivateAsync(Guid id)
+    public async Task DeactivateAsync(Guid id, Guid actorId)
     {
         var user = await userRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException("User not found.");
 
         user.IsActive = false;
         await userRepository.UpdateAsync(user);
+
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = actorId,
+            Action     = "Deactivated",
+            EntityType = "User",
+            EntityId   = id.ToString()
+        });
     }
 
-    public async Task ResetPasswordAsync(Guid id, string newPassword)
+    public async Task ResetPasswordAsync(Guid id, string newPassword, Guid actorId)
     {
         var user = await userRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException("User not found.");
 
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         await userRepository.UpdateAsync(user);
+
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = actorId,
+            Action     = "PasswordReset",
+            EntityType = "User",
+            EntityId   = id.ToString()
+        });
     }
 
     private static UserDto MapToDto(User u) => new()

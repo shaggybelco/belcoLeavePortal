@@ -10,7 +10,8 @@ public class LeaveRequestService(
     ILeaveRequestRepository leaveRequestRepository,
     ILeaveBalanceRepository leaveBalanceRepository,
     IUserRepository userRepository,
-    IEmailService emailService) : ILeaveRequestService
+    IEmailService emailService,
+    IAuditLogRepository auditLogRepository) : ILeaveRequestService
 {
     public async Task<IEnumerable<LeaveRequestDto>> GetMyRequestsAsync(Guid userId) =>
         (await leaveRequestRepository.GetByUserIdAsync(userId)).Select(MapToDto);
@@ -47,6 +48,14 @@ public class LeaveRequestService(
         };
 
         var created = await leaveRequestRepository.CreateAsync(request);
+
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = userId,
+            Action     = "Submitted",
+            EntityType = "LeaveRequest",
+            EntityId   = created.Id.ToString()
+        });
 
         // Reload with navigation properties
         var full = await leaveRequestRepository.GetByIdAsync(created.Id);
@@ -103,6 +112,14 @@ public class LeaveRequestService(
 
         var updated = await leaveRequestRepository.UpdateAsync(request);
 
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = reviewerId,
+            Action     = action.ToString(),
+            EntityType = "LeaveRequest",
+            EntityId   = requestId.ToString()
+        });
+
         // Notify employee of decision
         var employee = request.User;
         _ = emailService.SendLeaveRequestReviewedAsync(
@@ -142,6 +159,14 @@ public class LeaveRequestService(
         request.Status = LeaveStatus.Rejected;
         request.ManagerComment = "Cancelled by employee.";
         await leaveRequestRepository.UpdateAsync(request);
+
+        await auditLogRepository.CreateAsync(new AuditLog
+        {
+            UserId     = userId,
+            Action     = "Cancelled",
+            EntityType = "LeaveRequest",
+            EntityId   = requestId.ToString()
+        });
     }
 
     private static LeaveRequestDto MapToDto(LeaveRequest r) => new()
