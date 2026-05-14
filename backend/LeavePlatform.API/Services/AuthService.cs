@@ -29,6 +29,18 @@ public class AuthService(IUserRepository userRepository, IConfiguration config) 
         return BuildResponse(created);
     }
 
+    public async Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await userRepository.GetByIdAsync(userId)
+            ?? throw new KeyNotFoundException("User not found.");
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+            throw new UnauthorizedAccessException("Current password is incorrect.");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await userRepository.UpdateAsync(user);
+    }
+
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
         var user = await userRepository.GetByEmailAsync(dto.Email)

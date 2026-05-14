@@ -90,6 +90,15 @@ public class UserService(
         await userRepository.UpdateAsync(user);
     }
 
+    public async Task ResetPasswordAsync(Guid id, string newPassword)
+    {
+        var user = await userRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException("User not found.");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await userRepository.UpdateAsync(user);
+    }
+
     private static UserDto MapToDto(User u) => new()
     {
         Id = u.Id,

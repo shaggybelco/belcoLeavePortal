@@ -34,6 +34,10 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http.post<void>(`${environment.apiUrl}/auth/change-password`, { currentPassword, newPassword });
+  }
+
   getToken(): string | null { return this._token(); }
 
   private decodeToken(token: string | null): TokenPayload | null {

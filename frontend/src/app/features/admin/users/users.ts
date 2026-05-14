@@ -10,6 +10,7 @@ import { DepartmentService } from '../../../core/services/department.service';
 import { User } from '../../../core/models/user.model';
 import { Department } from '../../../core/models/department.model';
 import { UserFormDialogComponent, UserFormData } from './user-form-dialog';
+import { ResetPasswordDialogComponent } from './reset-password-dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
 
@@ -75,6 +76,12 @@ export class AdminUsersComponent implements OnInit {
         managerId:    result.managerId    ?? undefined,
         isActive:     true,
       }).subscribe(() => this.load());
+    });
+  }
+
+  openResetPassword(u: User) {
+    this.dialog.open<ResetPasswordDialogComponent, User>(ResetPasswordDialogComponent, {
+      data: u
     });
   }
 

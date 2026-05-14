@@ -51,6 +51,9 @@
           <button mat-icon-button title="Edit" (click)="openEdit(u)">
             <mat-icon>edit</mat-icon>
           </button>
+          <button mat-icon-button title="Reset Password" class="reset-icon" (click)="openResetPassword(u)">
+            <mat-icon>lock_reset</mat-icon>
+          </button>
           @if (u.isActive) {
             <button mat-icon-button title="Deactivate" class="warn-icon" (click)="deactivate(u)">
               <mat-icon>person_off</mat-icon>
@@ -104,5 +107,6 @@
   }
 
   .actions-cell { white-space: nowrap; }
-  .warn-icon { color: #ef4444 !important; }
+  .warn-icon  { color: #ef4444 !important; }
+  .reset-icon { color: #f59e0b !important; }
 </style>
