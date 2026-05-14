@@ -2,58 +2,55 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { LeaveRequestService } from '../../../core/services/leave-request.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LeaveRequest } from '../../../core/models/leave-request.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
+import { ReviewDialogComponent, ReviewDialogData } from './review-dialog';
 
 @Component({
   selector: 'app-manager-requests',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, FormsModule, StatusBadgeComponent],
+    MatIconModule, StatusBadgeComponent, LoadingComponent],
   templateUrl: './requests.html'
 })
 export class ManagerRequestsComponent implements OnInit {
   private requestService = inject(LeaveRequestService);
-  private auth = inject(AuthService);
+  private auth           = inject(AuthService);
+  private dialog         = inject(MatDialog);
 
   requests: LeaveRequest[] = [];
   columns = ['employee', 'leaveType', 'dates', 'days', 'status', 'actions'];
-  reviewComment = '';
-  reviewingId: string | null = null;
-  reviewAction: 'Approved' | 'Rejected' | null = null;
+  loading = true;
+
+  get isAdmin() { return this.auth.role() === 'Admin'; }
 
   ngOnInit() { this.load(); }
 
   load() {
-    // Admin sees all requests; Manager sees only their team
+    this.loading = true;
     const obs = this.auth.role() === 'Admin'
       ? this.requestService.getAll()
       : this.requestService.getTeam();
-    obs.subscribe(r => this.requests = r);
-  }
-
-  startReview(id: string, action: 'Approved' | 'Rejected') {
-    this.reviewingId = id;
-    this.reviewAction = action;
-    this.reviewComment = '';
-  }
-
-  confirmReview() {
-    if (!this.reviewingId || !this.reviewAction) return;
-    this.requestService.review(this.reviewingId, {
-      action: this.reviewAction,
-      managerComment: this.reviewComment || undefined
-    }).subscribe(() => {
-      this.reviewingId = null;
-      this.reviewAction = null;
-      this.load();
+    obs.subscribe(r => {
+      this.requests = r;
+      this.loading  = false;
     });
   }
 
-  cancelReview() { this.reviewingId = null; this.reviewAction = null; }
+  review(request: LeaveRequest, action: 'Approved' | 'Rejected') {
+    this.dialog.open<ReviewDialogComponent, ReviewDialogData>(ReviewDialogComponent, {
+      data: { request, action }
+    }).afterClosed().subscribe(result => {
+      if (result === null || result === undefined) return;
+      this.requestService.review(request.id, {
+        action,
+        managerComment: result.comment,
+      }).subscribe(() => this.load());
+    });
+  }
 }

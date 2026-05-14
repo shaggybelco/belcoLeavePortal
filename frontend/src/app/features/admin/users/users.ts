@@ -1,108 +1,95 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../core/services/user.service';
 import { DepartmentService } from '../../../core/services/department.service';
 import { User } from '../../../core/models/user.model';
 import { Department } from '../../../core/models/department.model';
+import { UserFormDialogComponent, UserFormData } from './user-form-dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [
-    ReactiveFormsModule, MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatChipsModule
-  ],
+  imports: [MatTableModule, MatButtonModule, MatCardModule,
+    MatIconModule, MatChipsModule, LoadingComponent],
   templateUrl: './users.html'
 })
 export class AdminUsersComponent implements OnInit {
-  private fb = inject(FormBuilder);
   private userService = inject(UserService);
   private deptService = inject(DepartmentService);
+  private dialog      = inject(MatDialog);
 
   users: User[] = [];
   departments: Department[] = [];
   managers: User[] = [];
   columns = ['name', 'email', 'role', 'department', 'status', 'actions'];
-  editingId: string | null = null;
-
-  form = this.fb.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
-    role: ['Employee', Validators.required],
-    departmentId: [null as string | null],
-    managerId: [null as string | null]
-  });
+  loading = true;
 
   ngOnInit() {
-    this.load();
     this.deptService.getAll().subscribe(d => this.departments = d);
+    this.load();
   }
 
   load() {
+    this.loading = true;
     this.userService.getAll().subscribe(u => {
-      this.users = u;
+      this.users    = u;
       this.managers = u.filter(m => m.role === 'Manager' || m.role === 'Admin');
+      this.loading  = false;
     });
   }
 
-  save() {
-    if (this.form.invalid) return;
-    const v = this.form.value;
-
-    if (this.editingId) {
-      this.userService.update(this.editingId, {
-        firstName: v.firstName!,
-        lastName: v.lastName!,
-        role: v.role!,
-        departmentId: v.departmentId ?? undefined,
-        managerId: v.managerId ?? undefined,
-        isActive: true
-      }).subscribe(() => { this.cancelEdit(); this.load(); });
-    } else {
+  openAdd() {
+    this.dialog.open<UserFormDialogComponent, UserFormData>(UserFormDialogComponent, {
+      data: { departments: this.departments, managers: this.managers }
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
       this.userService.create({
-        firstName: v.firstName!,
-        lastName: v.lastName!,
-        email: v.email!,
-        password: v.password!,
-        role: v.role!,
-        departmentId: v.departmentId ?? undefined,
-        managerId: v.managerId ?? undefined
-      }).subscribe(() => { this.form.reset({ role: 'Employee' }); this.load(); });
-    }
-  }
-
-  edit(u: User) {
-    this.editingId = u.id;
-    this.form.patchValue({
-      firstName: u.firstName,
-      lastName: u.lastName,
-      email: u.email,
-      role: u.role,
-      departmentId: u.departmentId ?? null,
-      managerId: u.managerId ?? null
+        firstName:    result.firstName,
+        lastName:     result.lastName,
+        email:        result.email,
+        password:     result.password,
+        role:         result.role,
+        departmentId: result.departmentId ?? undefined,
+        managerId:    result.managerId    ?? undefined,
+      }).subscribe(() => this.load());
     });
-    this.form.get('password')!.clearValidators();
-    this.form.get('password')!.updateValueAndValidity();
   }
 
-  cancelEdit() {
-    this.editingId = null;
-    this.form.reset({ role: 'Employee' });
-    this.form.get('password')!.setValidators(Validators.required);
-    this.form.get('password')!.updateValueAndValidity();
+  openEdit(u: User) {
+    this.dialog.open<UserFormDialogComponent, UserFormData>(UserFormDialogComponent, {
+      data: { user: u, departments: this.departments, managers: this.managers }
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
+      this.userService.update(u.id, {
+        firstName:    result.firstName,
+        lastName:     result.lastName,
+        role:         result.role,
+        departmentId: result.departmentId ?? undefined,
+        managerId:    result.managerId    ?? undefined,
+        isActive:     true,
+      }).subscribe(() => this.load());
+    });
   }
 
-  deactivate(id: string) {
-    if (!confirm('Deactivate this user?')) return;
-    this.userService.deactivate(id).subscribe(() => this.load());
+  deactivate(u: User) {
+    this.dialog.open<ConfirmDialogComponent, ConfirmDialogData>(ConfirmDialogComponent, {
+      data: {
+        title:        'Deactivate User',
+        message:      `Are you sure you want to deactivate ${u.firstName} ${u.lastName}?`,
+        confirmLabel: 'Deactivate',
+        confirmColor: 'warn',
+        icon:         'person_off',
+      }
+    }).afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.userService.deactivate(u.id).subscribe(() => this.load());
+    });
   }
 }
