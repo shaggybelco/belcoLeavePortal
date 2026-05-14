@@ -12,13 +12,11 @@ import { Department } from '../../../core/models/department.model';
 import { UserFormDialogComponent, UserFormData } from './user-form-dialog';
 import { ResetPasswordDialogComponent } from './reset-password-dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
-import { LoadingComponent } from '../../../shared/components/loading/loading';
-
 @Component({
   selector: 'app-admin-users',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatCardModule,
-    MatIconModule, MatChipsModule, LoadingComponent],
+    MatIconModule, MatChipsModule],
   templateUrl: './users.html'
 })
 export class AdminUsersComponent implements OnInit {
@@ -30,7 +28,6 @@ export class AdminUsersComponent implements OnInit {
   departments: Department[] = [];
   managers: User[] = [];
   columns = ['name', 'email', 'role', 'department', 'status', 'actions'];
-  loading = true;
 
   ngOnInit() {
     this.deptService.getAll().subscribe(d => this.departments = d);
@@ -38,11 +35,9 @@ export class AdminUsersComponent implements OnInit {
   }
 
   load() {
-    this.loading = true;
     this.userService.getAll().subscribe(u => {
       this.users    = u;
       this.managers = u.filter(m => m.role === 'Manager' || m.role === 'Admin');
-      this.loading  = false;
     });
   }
 

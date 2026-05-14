@@ -7,14 +7,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { LeaveRequestService } from '../../../core/services/leave-request.service';
 import { LeaveRequest } from '../../../core/models/leave-request.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
-import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-leave-history',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatCardModule,
-    MatIconModule, StatusBadgeComponent, LoadingComponent],
+    MatIconModule, StatusBadgeComponent],
   templateUrl: './history.html'
 })
 export class LeaveHistoryComponent implements OnInit {
@@ -23,17 +22,10 @@ export class LeaveHistoryComponent implements OnInit {
 
   requests: LeaveRequest[] = [];
   columns = ['leaveType', 'dates', 'days', 'status', 'actions'];
-  loading = true;
 
   ngOnInit() { this.load(); }
 
-  load() {
-    this.loading = true;
-    this.requestService.getMine().subscribe(r => {
-      this.requests = r;
-      this.loading  = false;
-    });
-  }
+  load() { this.requestService.getMine().subscribe(r => this.requests = r); }
 
   cancel(request: LeaveRequest) {
     this.dialog.open<ConfirmDialogComponent, ConfirmDialogData>(ConfirmDialogComponent, {
