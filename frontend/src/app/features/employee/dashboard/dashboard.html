@@ -1,0 +1,42 @@
+<h2>My Dashboard</h2>
+
+<h3>Leave Balances</h3>
+<div class="balance-grid">
+  @for (b of balances; track b.id) {
+    <mat-card class="balance-card">
+      <mat-card-header>
+        <mat-card-title>{{ b.leaveTypeName }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="balance-numbers">
+          <span class="remaining">{{ b.remainingDays }}</span>
+          <span class="label">of {{ b.totalDays }} days remaining</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+  @empty {
+    <p>No leave balances found for this year.</p>
+  }
+</div>
+
+<div class="section-header">
+  <h3>Recent Requests</h3>
+  <a mat-raised-button color="primary" routerLink="/employee/apply">+ Apply for Leave</a>
+</div>
+
+<div class="recent-list">
+  @for (r of recentRequests; track r.id) {
+    <mat-card class="request-row">
+      <mat-card-content class="request-content">
+        <span>{{ r.leaveTypeName }}</span>
+        <span>{{ r.startDate }} → {{ r.endDate }}</span>
+        <span>{{ r.totalDays }} days</span>
+        <app-status-badge [status]="r.status" />
+      </mat-card-content>
+    </mat-card>
+  }
+  @empty {
+    <p>No requests yet. <a routerLink="/employee/apply">Apply for leave</a>.</p>
+  }
+</div>
