@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <!-- App background gradient -->
+    <linearGradient id="appBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <!-- Calendar header gradient -->
+    <linearGradient id="calHeader" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+
+    <!-- Top-left shine on the background square -->
+    <linearGradient id="shine" x1="0%" y1="0%" x2="60%" y2="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Drop shadow for the calendar card -->
+    <filter id="calShadow" x="-20%" y="-15%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1e1b4b" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- ── Background rounded square ──────────── -->
+  <rect width="100" height="100" rx="22" fill="url(#appBg)"/>
+  <rect width="100" height="100" rx="22" fill="url(#shine)"/>
+
+  <!-- ── Calendar card ──────────────────────── -->
+  <!-- White card body (shadow applied here) -->
+  <rect x="16" y="27" width="68" height="55" rx="10" fill="white" filter="url(#calShadow)"/>
+
+  <!-- Header bar -->
+  <rect x="16" y="27" width="68" height="25" rx="10" fill="url(#calHeader)"/>
+  <!-- Fill the bottom-half corners of the header so it meets the card flush -->
+  <rect x="16" y="43" width="68" height="9" fill="#6366f1"/>
+
+  <!-- Subtle divider line between header and body -->
+  <line x1="22" y1="52" x2="78" y2="52" stroke="#e0e7ff" stroke-width="0.6" opacity="0.6"/>
+
+  <!-- ── Calendar pegs ───────────────────────── -->
+  <rect x="31" y="19" width="8" height="18" rx="4" fill="white" opacity="0.88"/>
+  <rect x="61" y="19" width="8" height="18" rx="4" fill="white" opacity="0.88"/>
+
+  <!-- ── Checkmark on header ────────────────── -->
+  <polyline
+    points="29,39 41,51 71,27"
+    fill="none"
+    stroke="white"
+    stroke-width="5.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+
+  <!-- ── Calendar grid dots ─────────────────── -->
+  <!-- Row 1 -->
+  <circle cx="31" cy="63" r="3.3" fill="#c7d2fe"/>
+  <circle cx="50" cy="63" r="3.3" fill="#c7d2fe"/>
+  <circle cx="69" cy="63" r="3.3" fill="#c7d2fe"/>
+
+  <!-- Row 2 — middle dot is today/highlighted -->
+  <circle cx="31" cy="74" r="3.3" fill="#c7d2fe"/>
+  <circle cx="50" cy="74" r="5"   fill="#6366f1"/>
+  <circle cx="69" cy="74" r="3.3" fill="#c7d2fe"/>
+</svg>

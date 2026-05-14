@@ -1,10 +1,10 @@
 <div class="login-wrapper">
 
-  <!-- Left brand panel -->
+  <!-- Left brand panel (desktop only) -->
   <div class="brand-panel">
     <div class="brand-content">
       <div class="brand-logo">
-        <mat-icon>event_available</mat-icon>
+        <img src="logo.svg" alt="Belco Leave Logo" width="64" height="64" />
       </div>
       <h1>Belco Leave Portal</h1>
       <p>Manage your team's leave requests efficiently and transparently.</p>
@@ -40,6 +40,16 @@
 
   <!-- Right form panel -->
   <div class="form-panel">
+
+    <!-- Mobile-only brand header -->
+    <div class="mobile-brand">
+      <img src="logo.svg" alt="Belco Leave" width="52" height="52" class="mobile-brand-logo" />
+      <div class="mobile-brand-text">
+        <div class="mobile-brand-name">Belco Leave Portal</div>
+        <div class="mobile-brand-sub">Manage your team's leave</div>
+      </div>
+    </div>
+
     <div class="form-card">
       <h2>Welcome back</h2>
       <p class="form-sub">Sign in to your account</p>
@@ -74,6 +84,36 @@
           }
         </button>
       </form>
+
+      <!-- Mobile-only demo quick login -->
+      <div class="mobile-demo">
+        <div class="mobile-demo-divider">
+          <span>or try a demo account</span>
+        </div>
+        <div class="mobile-demo-buttons">
+          <button class="mobile-demo-btn admin" (click)="quickLogin('admin')">
+            <div class="mobile-demo-icon">
+              <mat-icon>admin_panel_settings</mat-icon>
+            </div>
+            <span class="mobile-demo-role">Admin</span>
+            <span class="mobile-demo-desc">Full access</span>
+          </button>
+          <button class="mobile-demo-btn manager" (click)="quickLogin('manager')">
+            <div class="mobile-demo-icon">
+              <mat-icon>manage_accounts</mat-icon>
+            </div>
+            <span class="mobile-demo-role">Manager</span>
+            <span class="mobile-demo-desc">Approve leave</span>
+          </button>
+          <button class="mobile-demo-btn employee" (click)="quickLogin('employee')">
+            <div class="mobile-demo-icon">
+              <mat-icon>person</mat-icon>
+            </div>
+            <span class="mobile-demo-role">Employee</span>
+            <span class="mobile-demo-desc">Apply for leave</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
