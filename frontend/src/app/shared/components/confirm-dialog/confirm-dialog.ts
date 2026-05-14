@@ -7,7 +7,7 @@ export interface ConfirmDialogData {
   title: string;
   message: string;
   confirmLabel?: string;
-  confirmColor?: 'warn' | 'primary';
+  confirmColor?: 'primary' | 'warn' | 'accent';
   icon?: string;
 }
 
@@ -16,9 +16,9 @@ export interface ConfirmDialogData {
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   template: `
-    <div class="dialog-wrapper">
-      <div class="dialog-icon" [class]="data.confirmColor ?? 'warn'">
-        <mat-icon>{{ data.icon ?? 'warning_amber' }}</mat-icon>
+    <div class="confirm-dialog">
+      <div class="confirm-icon" [class]="'icon-' + (data.confirmColor ?? 'primary')">
+        <mat-icon>{{ data.icon ?? 'help_outline' }}</mat-icon>
       </div>
 
       <h2 mat-dialog-title>{{ data.title }}</h2>
@@ -29,7 +29,7 @@ export interface ConfirmDialogData {
       <mat-dialog-actions>
         <button mat-stroked-button (click)="ref.close(false)">Cancel</button>
         <button mat-flat-button
-          [class]="'confirm-btn ' + (data.confirmColor ?? 'warn')"
+          [class]="'confirm-btn confirm-' + (data.confirmColor ?? 'primary')"
           (click)="ref.close(true)">
           {{ data.confirmLabel ?? 'Confirm' }}
         </button>
@@ -37,49 +37,44 @@ export interface ConfirmDialogData {
     </div>
   `,
   styles: [`
-    .dialog-wrapper {
-      padding: 8px 8px 0;
+    .confirm-dialog {
+      width: 380px;
+      padding: 24px;
       text-align: center;
-      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .dialog-icon {
-      width: 56px; height: 56px;
-      border-radius: 50%;
+    .confirm-icon {
+      width: 56px; height: 56px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-
+      margin-bottom: 16px;
       mat-icon { font-size: 28px; width: 28px; height: 28px; }
-
-      &.warn    { background: #fee2e2; mat-icon { color: #ef4444; } }
-      &.primary { background: #e0e7ff; mat-icon { color: #6366f1; } }
     }
+
+    .icon-primary { background: #ede9fe; mat-icon { color: #6366f1; } }
+    .icon-warn    { background: #fee2e2; mat-icon { color: #ef4444; } }
+    .icon-accent  { background: #fef3c7; mat-icon { color: #f59e0b; } }
 
     h2[mat-dialog-title] {
+      margin: 0 0 8px; padding: 0;
       font-size: 1.1rem; font-weight: 700;
-      margin: 0 0 4px; padding: 0;
-      text-align: center;
     }
 
     mat-dialog-content p {
-      color: #64748b; font-size: .9rem;
-      margin: 0; text-align: center;
+      margin: 0; color: #64748b; font-size: .9rem; line-height: 1.5;
     }
 
     mat-dialog-actions {
-      display: flex; gap: 10px; justify-content: center;
-      padding: 20px 0 8px !important;
-
-      button {
-        min-width: 110px; border-radius: 8px !important;
-        font-weight: 600;
-      }
+      display: flex; justify-content: center; gap: 12px;
+      padding: 20px 0 0 !important; margin: 0 !important;
+      button { border-radius: 8px !important; font-weight: 600; min-width: 100px; }
     }
 
-    .confirm-btn {
-      &.warn    { background: #ef4444 !important; color: white !important; }
-      &.primary { background: #6366f1 !important; color: white !important; }
-    }
+    .confirm-primary { background: #6366f1 !important; color: white !important; }
+    .confirm-warn    { background: #ef4444 !important; color: white !important; }
+    .confirm-accent  { background: #f59e0b !important; color: white !important; }
   `]
 })
 export class ConfirmDialogComponent {

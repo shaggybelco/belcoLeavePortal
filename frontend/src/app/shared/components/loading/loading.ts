@@ -13,19 +13,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   `,
   styles: [`
     .loading-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 64px 24px;
-      gap: 16px;
-      color: #94a3b8;
-
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 24px; gap: 16px;
+      color: #64748b;
       p { margin: 0; font-size: .9rem; }
-
-      mat-spinner {
-        --mdc-circular-progress-active-indicator-color: #6366f1;
-      }
     }
   `]
 })

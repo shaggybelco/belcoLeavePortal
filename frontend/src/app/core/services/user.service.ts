@@ -13,4 +13,7 @@ export class UserService {
   create(body: CreateUserRequest) { return this.http.post<User>(this.base, body); }
   update(id: string, body: UpdateUserRequest) { return this.http.put<User>(`${this.base}/${id}`, body); }
   deactivate(id: string) { return this.http.delete<void>(`${this.base}/${id}`); }
+  resetPassword(id: string, newPassword: string) {
+    return this.http.put<void>(`${this.base}/${id}/reset-password`, { newPassword });
+  }
 }

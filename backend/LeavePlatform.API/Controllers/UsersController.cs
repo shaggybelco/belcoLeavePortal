@@ -2,6 +2,7 @@ using LeavePlatform.API.DTOs.User;
 using LeavePlatform.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LeavePlatform.API.Controllers;
 
@@ -45,6 +46,13 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IActionResult> Deactivate(Guid id)
     {
         try { await userService.DeactivateAsync(id); return NoContent(); }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+    }
+
+    [HttpPut("{id}/reset-password")]
+    public async Task<IActionResult> ResetPassword(Guid id, ResetPasswordDto dto)
+    {
+        try { await userService.ResetPasswordAsync(id, dto.NewPassword); return NoContent(); }
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }
 }

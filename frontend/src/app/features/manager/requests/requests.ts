@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LeaveRequest } from '../../../core/models/leave-request.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
-import { ReviewDialogComponent } from './review-dialog';
+import { ReviewDialogComponent, ReviewDialogData } from './review-dialog';
 
 @Component({
   selector: 'app-manager-requests',
@@ -36,23 +36,21 @@ export class ManagerRequestsComponent implements OnInit {
     const obs = this.auth.role() === 'Admin'
       ? this.requestService.getAll()
       : this.requestService.getTeam();
-    obs.subscribe(r => { this.requests = r; this.loading = false; });
+    obs.subscribe(r => {
+      this.requests = r;
+      this.loading  = false;
+    });
   }
 
-  review(r: LeaveRequest, action: 'Approved' | 'Rejected') {
-    this.dialog.open(ReviewDialogComponent, {
-      width: '460px',
-      data: {
+  review(request: LeaveRequest, action: 'Approved' | 'Rejected') {
+    this.dialog.open<ReviewDialogComponent, ReviewDialogData>(ReviewDialogComponent, {
+      data: { request, action }
+    }).afterClosed().subscribe(result => {
+      if (result === null || result === undefined) return;
+      this.requestService.review(request.id, {
         action,
-        employeeName: r.employeeName,
-        leaveType:    r.leaveTypeName,
-        dates:        `${r.startDate} → ${r.endDate}`,
-        days:         r.totalDays
-      }
-    }).afterClosed().subscribe((comment: string | null) => {
-      if (comment === null) return;
-      this.requestService.review(r.id, { action, managerComment: comment || undefined })
-        .subscribe(() => this.load());
+        managerComment: result.comment,
+      }).subscribe(() => this.load());
     });
   }
 }

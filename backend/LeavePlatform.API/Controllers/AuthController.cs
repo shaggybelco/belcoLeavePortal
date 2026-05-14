@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using LeavePlatform.API.DTOs.Auth;
 using LeavePlatform.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,28 @@ public class AuthController(IAuthService authService) : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null) return Unauthorized();
+
+        try
+        {
+            await authService.ChangePasswordAsync(Guid.Parse(userId), dto);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
     }
 }

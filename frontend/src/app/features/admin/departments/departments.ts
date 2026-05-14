@@ -1,46 +1,69 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { DepartmentService } from '../../../core/services/department.service';
 import { Department } from '../../../core/models/department.model';
+import { DepartmentFormDialogComponent, DepartmentFormData } from './department-form-dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-departments',
   standalone: true,
-  imports: [ReactiveFormsModule, MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, LoadingComponent],
+  imports: [MatTableModule, MatButtonModule, MatCardModule, MatIconModule, LoadingComponent],
   templateUrl: './departments.html'
 })
 export class AdminDepartmentsComponent implements OnInit {
-  private fb = inject(FormBuilder);
   private deptService = inject(DepartmentService);
+  private dialog      = inject(MatDialog);
 
   departments: Department[] = [];
   columns = ['name', 'actions'];
-  form = this.fb.group({ name: ['', Validators.required] });
-  editingId: string | null = null;
   loading = true;
 
   ngOnInit() { this.load(); }
 
   load() {
     this.loading = true;
-    this.deptService.getAll().subscribe(d => { this.departments = d; this.loading = false; });
+    this.deptService.getAll().subscribe(d => {
+      this.departments = d;
+      this.loading = false;
+    });
   }
 
-  save() {
-    if (this.form.invalid) return;
-    const name = this.form.value.name!;
-    const op = this.editingId
-      ? this.deptService.update(this.editingId, { name })
-      : this.deptService.create({ name });
-    op.subscribe(() => { this.form.reset(); this.editingId = null; this.load(); });
+  openAdd() {
+    this.dialog.open<DepartmentFormDialogComponent, DepartmentFormData>(DepartmentFormDialogComponent, {
+      data: {}
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
+      this.deptService.create({ name: result.name }).subscribe(() => this.load());
+    });
   }
 
-  edit(dept: Department) { this.editingId = dept.id; this.form.setValue({ name: dept.name }); }
+  openEdit(dept: Department) {
+    this.dialog.open<DepartmentFormDialogComponent, DepartmentFormData>(DepartmentFormDialogComponent, {
+      data: { department: dept }
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
+      this.deptService.update(dept.id, { name: result.name }).subscribe(() => this.load());
+    });
+  }
+
+  confirmDelete(dept: Department) {
+    this.dialog.open<ConfirmDialogComponent, ConfirmDialogData>(ConfirmDialogComponent, {
+      data: {
+        title:        'Delete Department',
+        message:      `Are you sure you want to delete "${dept.name}"? This action cannot be undone.`,
+        confirmLabel: 'Delete',
+        confirmColor: 'warn',
+        icon:         'delete_outline',
+      }
+    }).afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.deptService.delete(dept.id).subscribe(() => this.load());
+    });
+  }
 }

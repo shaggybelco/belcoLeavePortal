@@ -1,44 +1,301 @@
-<mat-card style="max-width: 500px">
-  <mat-card-header>
-    <mat-card-title>Apply for Leave</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline" style="width:100%; margin-top:16px">
-        <mat-label>Leave Type</mat-label>
-        <mat-select formControlName="leaveTypeId">
-          @for (t of leaveTypes; track t.id) {
-            <mat-option [value]="t.id">{{ t.name }} ({{ t.defaultDays }} days/yr)</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+<div class="apply-page">
 
-      <mat-form-field appearance="outline" style="width:100%">
-        <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
-        <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
-        <mat-datepicker #startPicker />
-      </mat-form-field>
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h2>Apply for Leave</h2>
+      <p>Submit a new leave request for manager approval</p>
+    </div>
+  </div>
 
-      <mat-form-field appearance="outline" style="width:100%">
-        <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
-        <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
-        <mat-datepicker #endPicker />
-      </mat-form-field>
+  <div class="apply-layout">
 
-      <mat-form-field appearance="outline" style="width:100%">
-        <mat-label>Comment (optional)</mat-label>
-        <textarea matInput formControlName="employeeComment" rows="3"></textarea>
-      </mat-form-field>
+    <!-- ── Form card ── -->
+    <mat-card class="form-card">
+      <div class="form-card-header">
+        <div class="form-icon">
+          <mat-icon>event_available</mat-icon>
+        </div>
+        <div>
+          <h3>New Leave Request</h3>
+          <p>Fill in the details below and submit for approval</p>
+        </div>
+      </div>
 
-      @if (error) {
-        <p style="color:#d32f2f; margin-bottom:12px">{{ error }}</p>
-      }
+      <form [formGroup]="form" (ngSubmit)="submit()" class="leave-form">
 
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-        Submit Request
-      </button>
-    </form>
-  </mat-card-content>
-</mat-card>
+        <!-- Leave type -->
+        <div class="field-group">
+          <label class="field-label">
+            <mat-icon>beach_access</mat-icon>
+            Leave Type
+          </label>
+          <mat-form-field appearance="outline" class="full">
+            <mat-select formControlName="leaveTypeId" placeholder="Select a leave type">
+              @for (t of leaveTypes; track t.id) {
+                <mat-option [value]="t.id">{{ t.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Date range -->
+        <div class="field-group">
+          <label class="field-label">
+            <mat-icon>date_range</mat-icon>
+            Date Range
+          </label>
+          <div class="date-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker"
+                formControlName="startDate" [min]="today" />
+              <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+              <mat-datepicker #startPicker />
+            </mat-form-field>
+            <div class="date-arrow">
+              <mat-icon>arrow_forward</mat-icon>
+            </div>
+            <mat-form-field appearance="outline">
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="endPicker"
+                formControlName="endDate"
+                [min]="form.value.startDate ?? today" />
+              <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+              <mat-datepicker #endPicker />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Comment -->
+        <div class="field-group">
+          <label class="field-label">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            Reason <span class="optional">(optional)</span>
+          </label>
+          <mat-form-field appearance="outline" class="full">
+            <textarea matInput formControlName="employeeComment"
+              rows="3" placeholder="Let your manager know why you're taking leave...">
+            </textarea>
+          </mat-form-field>
+        </div>
+
+        @if (error) {
+          <div class="error-banner">
+            <mat-icon>error_outline</mat-icon>
+            {{ error }}
+          </div>
+        }
+
+        <button mat-flat-button class="submit-btn" type="submit" [disabled]="form.invalid">
+          <mat-icon>send</mat-icon>
+          Submit Request
+        </button>
+
+      </form>
+    </mat-card>
+
+    <!-- ── Summary card ── -->
+    <div class="summary-col">
+
+      <mat-card class="summary-card">
+        <h4>Request Summary</h4>
+
+        <div class="summary-item">
+          <span class="summary-label">Leave Type</span>
+          <span class="summary-value">{{ selectedType?.name ?? '—' }}</span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Entitlement</span>
+          <span class="summary-value">
+            {{ selectedType ? selectedType.defaultDays + ' days / year' : '—' }}
+          </span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">Start Date</span>
+          <span class="summary-value">
+            {{ form.value.startDate ? (form.value.startDate | date:'d MMM yyyy') : '—' }}
+          </span>
+        </div>
+
+        <div class="summary-item">
+          <span class="summary-label">End Date</span>
+          <span class="summary-value">
+            {{ form.value.endDate ? (form.value.endDate | date:'d MMM yyyy') : '—' }}
+          </span>
+        </div>
+
+        <div class="days-pill" [class.filled]="dayCount > 0">
+          <span class="days-number">{{ dayCount }}</span>
+          <span class="days-label">day{{ dayCount !== 1 ? 's' : '' }} requested</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="tips-card">
+        <h4><mat-icon>lightbulb_outline</mat-icon> Tips</h4>
+        <ul>
+          <li>Submit at least 3 days in advance when possible</li>
+          <li>Include a short reason to help your manager decide faster</li>
+          <li>You can cancel a pending request from <strong>My Requests</strong></li>
+        </ul>
+      </mat-card>
+
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .apply-page { max-width: 900px; }
+
+  .page-header {
+    margin-bottom: 24px;
+    h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+    p  { margin: 4px 0 0; color: #64748b; font-size: .875rem; }
+  }
+
+  .apply-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── Form card ── */
+  .form-card {
+    padding: 0 !important;
+    overflow: hidden;
+  }
+
+  .form-card-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+    p  { margin: 3px 0 0; font-size: .82rem; color: #64748b; }
+  }
+
+  .form-icon {
+    width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    mat-icon { color: white; font-size: 24px; width: 24px; height: 24px; }
+  }
+
+  .leave-form {
+    padding: 24px 28px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  /* ── Field groups ── */
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+  .field-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .8rem; font-weight: 600; color: #475569; text-transform: uppercase;
+    letter-spacing: .5px;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; color: #6366f1; }
+    .optional { font-weight: 400; text-transform: none; color: #94a3b8; }
+  }
+
+  .full { width: 100%; }
+
+  /* ── Date row ── */
+  .date-row {
+    display: flex; align-items: center; gap: 8px;
+    mat-form-field { flex: 1; }
+  }
+
+  .date-arrow {
+    flex-shrink: 0; color: #94a3b8; margin-top: -20px;
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  }
+
+  /* ── Error ── */
+  .error-banner {
+    display: flex; align-items: center; gap: 8px;
+    background: #fef2f2; color: #ef4444;
+    border: 1px solid #fecaca; border-radius: 8px;
+    padding: 10px 14px; font-size: .875rem;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+  }
+
+  /* ── Submit ── */
+  .submit-btn {
+    background: #6366f1 !important; color: white !important;
+    border-radius: 10px !important; font-weight: 600;
+    height: 44px; font-size: .95rem;
+    display: flex; align-items: center; gap: 8px;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+
+  /* ── Summary card ── */
+  .summary-col { display: flex; flex-direction: column; gap: 16px; }
+
+  .summary-card {
+    padding: 20px !important;
+    h4 {
+      margin: 0 0 16px; font-size: .9rem; font-weight: 700; color: #1e293b;
+    }
+  }
+
+  .summary-item {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+    &:last-of-type { border-bottom: none; }
+  }
+
+  .summary-label {
+    font-size: .72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .5px; color: #94a3b8;
+  }
+
+  .summary-value {
+    font-size: .9rem; font-weight: 500; color: #1e293b;
+  }
+
+  .days-pill {
+    margin-top: 16px; border-radius: 12px;
+    background: #f1f5f9;
+    padding: 16px; text-align: center;
+    transition: background .3s;
+
+    .days-number {
+      display: block; font-size: 2.5rem; font-weight: 800;
+      color: #cbd5e1; line-height: 1; transition: color .3s;
+    }
+    .days-label {
+      font-size: .8rem; color: #94a3b8; font-weight: 500;
+    }
+
+    &.filled {
+      background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+      .days-number { color: #6366f1; }
+      .days-label  { color: #7c3aed; }
+    }
+  }
+
+  /* ── Tips card ── */
+  .tips-card {
+    padding: 20px !important;
+    h4 {
+      margin: 0 0 12px; font-size: .9rem; font-weight: 700; color: #1e293b;
+      display: flex; align-items: center; gap: 6px;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #f59e0b; }
+    }
+    ul {
+      margin: 0; padding-left: 18px;
+      display: flex; flex-direction: column; gap: 8px;
+      li { font-size: .82rem; color: #64748b; line-height: 1.5; }
+    }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .apply-layout { grid-template-columns: 1fr; }
+    .summary-col  { order: -1; }
+  }
+</style>

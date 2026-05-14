@@ -66,7 +66,10 @@
           <div class="user-role-badge">{{ role() }}</div>
         </div>
       </div>
-      <button class="logout-btn" (click)="logout()" title="Logout">
+      <button class="icon-btn" (click)="openChangePassword()" title="Change Password">
+        <mat-icon>lock_reset</mat-icon>
+      </button>
+      <button class="icon-btn" (click)="logout()" title="Logout">
         <mat-icon>logout</mat-icon>
       </button>
     </div>
@@ -74,6 +77,7 @@
 
   <!-- ── Main content ───────────────────────── -->
   <main class="main-content">
+    <div class="global-loading-bar" [class.active]="loading.isLoading()"></div>
     <router-outlet />
   </main>
 

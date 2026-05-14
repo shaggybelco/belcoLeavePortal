@@ -1,51 +1,78 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { LeaveTypeService } from '../../../core/services/leave-type.service';
 import { LeaveType } from '../../../core/models/leave-type.model';
+import { LeaveTypeFormDialogComponent, LeaveTypeFormData } from './leave-type-form-dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-leave-types',
   standalone: true,
-  imports: [ReactiveFormsModule, MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatChipsModule, LoadingComponent],
+  imports: [MatTableModule, MatButtonModule, MatCardModule,
+    MatIconModule, MatChipsModule, LoadingComponent],
   templateUrl: './leave-types.html'
 })
 export class AdminLeaveTypesComponent implements OnInit {
-  private fb = inject(FormBuilder);
   private leaveTypeService = inject(LeaveTypeService);
+  private dialog           = inject(MatDialog);
 
   leaveTypes: LeaveType[] = [];
   columns = ['name', 'days', 'status', 'actions'];
-  form = this.fb.group({
-    name: ['', Validators.required],
-    defaultDays: [0, [Validators.required, Validators.min(1)]]
-  });
-  editingId: string | null = null;
   loading = true;
 
   ngOnInit() { this.load(); }
 
   load() {
     this.loading = true;
-    this.leaveTypeService.getAll().subscribe(t => { this.leaveTypes = t; this.loading = false; });
+    this.leaveTypeService.getAll().subscribe(t => {
+      this.leaveTypes = t;
+      this.loading = false;
+    });
   }
 
-  save() {
-    if (this.form.invalid) return;
-    const { name, defaultDays } = this.form.value;
-    const op = this.editingId
-      ? this.leaveTypeService.update(this.editingId, { name: name!, defaultDays: defaultDays!, isActive: true })
-      : this.leaveTypeService.create({ name: name!, defaultDays: defaultDays! });
-    op.subscribe(() => { this.form.reset(); this.editingId = null; this.load(); });
+  openAdd() {
+    this.dialog.open<LeaveTypeFormDialogComponent, LeaveTypeFormData>(LeaveTypeFormDialogComponent, {
+      data: {}
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
+      this.leaveTypeService.create({
+        name:        result.name,
+        defaultDays: result.defaultDays,
+      }).subscribe(() => this.load());
+    });
   }
 
-  edit(lt: LeaveType) { this.editingId = lt.id; this.form.setValue({ name: lt.name, defaultDays: lt.defaultDays }); }
-  deactivate(id: string) { this.leaveTypeService.deactivate(id).subscribe(() => this.load()); }
+  openEdit(lt: LeaveType) {
+    this.dialog.open<LeaveTypeFormDialogComponent, LeaveTypeFormData>(LeaveTypeFormDialogComponent, {
+      data: { leaveType: lt }
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
+      this.leaveTypeService.update(lt.id, {
+        name:        result.name,
+        defaultDays: result.defaultDays,
+        isActive:    lt.isActive,
+      }).subscribe(() => this.load());
+    });
+  }
+
+  deactivate(lt: LeaveType) {
+    this.dialog.open<ConfirmDialogComponent, ConfirmDialogData>(ConfirmDialogComponent, {
+      data: {
+        title:        'Deactivate Leave Type',
+        message:      `Are you sure you want to deactivate "${lt.name}"? Employees won't be able to apply for this leave type.`,
+        confirmLabel: 'Deactivate',
+        confirmColor: 'warn',
+        icon:         'block',
+      }
+    }).afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.leaveTypeService.deactivate(lt.id).subscribe(() => this.load());
+    });
+  }
 }
