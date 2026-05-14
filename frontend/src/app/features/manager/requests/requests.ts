@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { LeaveRequestService } from '../../../core/services/leave-request.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LeaveRequest } from '../../../core/models/leave-request.model';
@@ -14,7 +15,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
   selector: 'app-manager-requests',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, FormsModule, StatusBadgeComponent],
+    MatFormFieldModule, MatInputModule, FormsModule, StatusBadgeComponent, LoadingComponent],
   templateUrl: './requests.html'
 })
 export class ManagerRequestsComponent implements OnInit {
@@ -26,15 +27,16 @@ export class ManagerRequestsComponent implements OnInit {
   reviewComment = '';
   reviewingId: string | null = null;
   reviewAction: 'Approved' | 'Rejected' | null = null;
+  loading = true;
 
   ngOnInit() { this.load(); }
 
   load() {
-    // Admin sees all requests; Manager sees only their team
+    this.loading = true;
     const obs = this.auth.role() === 'Admin'
       ? this.requestService.getAll()
       : this.requestService.getTeam();
-    obs.subscribe(r => this.requests = r);
+    obs.subscribe(r => { this.requests = r; this.loading = false; });
   }
 
   startReview(id: string, action: 'Approved' | 'Rejected') {

@@ -1,31 +1,41 @@
-<h2>My Leave Requests</h2>
+<div class="page-header">
+  <div>
+    <h2>My Leave Requests</h2>
+    <p>Your full leave history</p>
+  </div>
+</div>
+
 <mat-card>
-  <table mat-table [dataSource]="requests" style="width:100%">
-    <ng-container matColumnDef="leaveType">
-      <th mat-header-cell *matHeaderCellDef>Type</th>
-      <td mat-cell *matCellDef="let r">{{ r.leaveTypeName }}</td>
-    </ng-container>
-    <ng-container matColumnDef="dates">
-      <th mat-header-cell *matHeaderCellDef>Dates</th>
-      <td mat-cell *matCellDef="let r">{{ r.startDate }} → {{ r.endDate }}</td>
-    </ng-container>
-    <ng-container matColumnDef="days">
-      <th mat-header-cell *matHeaderCellDef>Days</th>
-      <td mat-cell *matCellDef="let r">{{ r.totalDays }}</td>
-    </ng-container>
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let r"><app-status-badge [status]="r.status" /></td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let r">
-        @if (r.status === 'Pending') {
-          <button mat-button color="warn" (click)="cancel(r.id)">Cancel</button>
-        }
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-  </table>
+  @if (loading) {
+    <app-loading message="Loading your requests..." />
+  } @else {
+    <table mat-table [dataSource]="requests" style="width:100%">
+      <ng-container matColumnDef="leaveType">
+        <th mat-header-cell *matHeaderCellDef>Type</th>
+        <td mat-cell *matCellDef="let r">{{ r.leaveTypeName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="dates">
+        <th mat-header-cell *matHeaderCellDef>Dates</th>
+        <td mat-cell *matCellDef="let r">{{ r.startDate }} → {{ r.endDate }}</td>
+      </ng-container>
+      <ng-container matColumnDef="days">
+        <th mat-header-cell *matHeaderCellDef>Days</th>
+        <td mat-cell *matCellDef="let r">{{ r.totalDays }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let r"><app-status-badge [status]="r.status" /></td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let r">
+          @if (r.status === 'Pending') {
+            <button mat-button color="warn" (click)="cancel(r.id)">Cancel</button>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+  }
 </mat-card>

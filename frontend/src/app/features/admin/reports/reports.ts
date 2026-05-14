@@ -1,26 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
 import { ReportService, LeaveSummary, AuditLog } from '../../../core/services/report.service';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [MatTableModule, MatTabsModule, MatCardModule, DatePipe],
+  imports: [MatTableModule, MatTabsModule, MatCardModule, DatePipe, LoadingComponent],
   templateUrl: './reports.html'
 })
 export class AdminReportsComponent implements OnInit {
+  private reportService = inject(ReportService);
+
   summaries: LeaveSummary[] = [];
   auditLogs: AuditLog[] = [];
   summaryColumns = ['employee', 'department', 'leaveType', 'total', 'used', 'remaining'];
   auditColumns = ['timestamp', 'employee', 'action', 'entity'];
-
-  constructor(private reportService: ReportService) {}
+  loadingSummary = true;
+  loadingAudit = true;
 
   ngOnInit() {
-    this.reportService.getLeaveSummary().subscribe(s => this.summaries = s);
-    this.reportService.getAuditLogs().subscribe(l => this.auditLogs = l);
+    this.reportService.getLeaveSummary().subscribe(s => { this.summaries = s; this.loadingSummary = false; });
+    this.reportService.getAuditLogs().subscribe(l => { this.auditLogs = l; this.loadingAudit = false; });
   }
 }

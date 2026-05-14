@@ -65,6 +65,9 @@
     <mat-card-title>All Users</mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    @if (loading) {
+      <app-loading message="Loading users..." />
+    } @else {
     <table mat-table [dataSource]="users" style="width:100%">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -102,5 +105,6 @@
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;"></tr>
     </table>
+    }
   </mat-card-content>
 </mat-card>

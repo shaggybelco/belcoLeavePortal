@@ -11,13 +11,15 @@ import { UserService } from '../../../core/services/user.service';
 import { DepartmentService } from '../../../core/services/department.service';
 import { User } from '../../../core/models/user.model';
 import { Department } from '../../../core/models/department.model';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
   imports: [
     ReactiveFormsModule, MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatChipsModule
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatChipsModule,
+    LoadingComponent
   ],
   templateUrl: './users.html'
 })
@@ -31,6 +33,7 @@ export class AdminUsersComponent implements OnInit {
   managers: User[] = [];
   columns = ['name', 'email', 'role', 'department', 'status', 'actions'];
   editingId: string | null = null;
+  loading = true;
 
   form = this.fb.group({
     firstName: ['', Validators.required],
@@ -48,48 +51,35 @@ export class AdminUsersComponent implements OnInit {
   }
 
   load() {
+    this.loading = true;
     this.userService.getAll().subscribe(u => {
       this.users = u;
       this.managers = u.filter(m => m.role === 'Manager' || m.role === 'Admin');
+      this.loading = false;
     });
   }
 
   save() {
     if (this.form.invalid) return;
     const v = this.form.value;
-
     if (this.editingId) {
       this.userService.update(this.editingId, {
-        firstName: v.firstName!,
-        lastName: v.lastName!,
-        role: v.role!,
-        departmentId: v.departmentId ?? undefined,
-        managerId: v.managerId ?? undefined,
-        isActive: true
+        firstName: v.firstName!, lastName: v.lastName!, role: v.role!,
+        departmentId: v.departmentId ?? undefined, managerId: v.managerId ?? undefined, isActive: true
       }).subscribe(() => { this.cancelEdit(); this.load(); });
     } else {
       this.userService.create({
-        firstName: v.firstName!,
-        lastName: v.lastName!,
-        email: v.email!,
-        password: v.password!,
-        role: v.role!,
-        departmentId: v.departmentId ?? undefined,
-        managerId: v.managerId ?? undefined
+        firstName: v.firstName!, lastName: v.lastName!, email: v.email!,
+        password: v.password!, role: v.role!,
+        departmentId: v.departmentId ?? undefined, managerId: v.managerId ?? undefined
       }).subscribe(() => { this.form.reset({ role: 'Employee' }); this.load(); });
     }
   }
 
   edit(u: User) {
     this.editingId = u.id;
-    this.form.patchValue({
-      firstName: u.firstName,
-      lastName: u.lastName,
-      email: u.email,
-      role: u.role,
-      departmentId: u.departmentId ?? null,
-      managerId: u.managerId ?? null
-    });
+    this.form.patchValue({ firstName: u.firstName, lastName: u.lastName, email: u.email,
+      role: u.role, departmentId: u.departmentId ?? null, managerId: u.managerId ?? null });
     this.form.get('password')!.clearValidators();
     this.form.get('password')!.updateValueAndValidity();
   }

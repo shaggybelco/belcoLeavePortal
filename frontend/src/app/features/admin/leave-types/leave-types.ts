@@ -8,12 +8,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { LeaveTypeService } from '../../../core/services/leave-type.service';
 import { LeaveType } from '../../../core/models/leave-type.model';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-leave-types',
   standalone: true,
   imports: [ReactiveFormsModule, MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatChipsModule],
+    MatFormFieldModule, MatInputModule, MatChipsModule, LoadingComponent],
   templateUrl: './leave-types.html'
 })
 export class AdminLeaveTypesComponent implements OnInit {
@@ -27,9 +28,14 @@ export class AdminLeaveTypesComponent implements OnInit {
     defaultDays: [0, [Validators.required, Validators.min(1)]]
   });
   editingId: string | null = null;
+  loading = true;
 
   ngOnInit() { this.load(); }
-  load() { this.leaveTypeService.getAll().subscribe(t => this.leaveTypes = t); }
+
+  load() {
+    this.loading = true;
+    this.leaveTypeService.getAll().subscribe(t => { this.leaveTypes = t; this.loading = false; });
+  }
 
   save() {
     if (this.form.invalid) return;
