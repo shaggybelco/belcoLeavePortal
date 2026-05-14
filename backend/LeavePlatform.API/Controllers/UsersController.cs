@@ -11,6 +11,8 @@ namespace LeavePlatform.API.Controllers;
 [Authorize(Roles = "Admin")]
 public class UsersController(IUserService userService) : ControllerBase
 {
+    private Guid ActorId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     [HttpGet]
     public async Task<IActionResult> GetAll() =>
         Ok(await userService.GetAllAsync());
@@ -27,7 +29,7 @@ public class UsersController(IUserService userService) : ControllerBase
     {
         try
         {
-            var result = await userService.CreateAsync(dto);
+            var result = await userService.CreateAsync(dto, ActorId);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
         catch (InvalidOperationException ex) { return Conflict(new { message = ex.Message }); }
@@ -37,7 +39,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateUserDto dto)
     {
-        try { return Ok(await userService.UpdateAsync(id, dto)); }
+        try { return Ok(await userService.UpdateAsync(id, dto, ActorId)); }
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
         catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
     }
@@ -45,14 +47,14 @@ public class UsersController(IUserService userService) : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Deactivate(Guid id)
     {
-        try { await userService.DeactivateAsync(id); return NoContent(); }
+        try { await userService.DeactivateAsync(id, ActorId); return NoContent(); }
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }
 
     [HttpPut("{id}/reset-password")]
     public async Task<IActionResult> ResetPassword(Guid id, ResetPasswordDto dto)
     {
-        try { await userService.ResetPasswordAsync(id, dto.NewPassword); return NoContent(); }
+        try { await userService.ResetPasswordAsync(id, dto.NewPassword, ActorId); return NoContent(); }
         catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }
 }
