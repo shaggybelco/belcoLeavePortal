@@ -24,11 +24,10 @@
 
 .sidebar-logo {
   width: 40px; height: 40px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  mat-icon { color: white; font-size: 22px; width: 22px; height: 22px; }
+  img { border-radius: 8px; display: block; }
 }
 
 .sidebar-app-name {
@@ -252,10 +251,8 @@
 
   .mobile-topbar-logo {
     width: 32px; height: 32px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    mat-icon { color: white; font-size: 18px; width: 18px; height: 18px; }
+    img { border-radius: 7px; display: block; }
   }
 
   .mobile-topbar-actions {
