@@ -1,5 +1,6 @@
 using LeavePlatform.API.DTOs.Auth;
 using LeavePlatform.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeavePlatform.API.Controllers;
@@ -9,6 +10,7 @@ namespace LeavePlatform.API.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
         try

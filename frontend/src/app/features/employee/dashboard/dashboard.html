@@ -1,42 +1,70 @@
-<h2>My Dashboard</h2>
+<div class="page-header">
+  <div>
+    <h2>My Dashboard</h2>
+    <p>{{ year }} leave overview</p>
+  </div>
+  <a mat-flat-button routerLink="/employee/apply" class="apply-btn">
+    <mat-icon>add</mat-icon> Apply for Leave
+  </a>
+</div>
 
-<h3>Leave Balances</h3>
+<!-- Leave balance cards -->
 <div class="balance-grid">
   @for (b of balances; track b.id) {
-    <mat-card class="balance-card">
-      <mat-card-header>
-        <mat-card-title>{{ b.leaveTypeName }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="balance-numbers">
-          <span class="remaining">{{ b.remainingDays }}</span>
-          <span class="label">of {{ b.totalDays }} days remaining</span>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    <div class="balance-card" [style.--accent]="colorFor(b.leaveTypeName)">
+      <div class="balance-top">
+        <mat-icon class="balance-icon">{{ iconFor(b.leaveTypeName) }}</mat-icon>
+        <span class="balance-type">{{ b.leaveTypeName }}</span>
+      </div>
+      <div class="balance-numbers">
+        <span class="remaining">{{ b.remainingDays }}</span>
+        <span class="total">/ {{ b.totalDays }} days</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="pct(b.remainingDays, b.totalDays)"></div>
+      </div>
+      <div class="balance-footer">
+        <span>{{ b.usedDays }} used</span>
+        <span>{{ b.remainingDays }} left</span>
+      </div>
+    </div>
   }
   @empty {
-    <p>No leave balances found for this year.</p>
+    <p class="empty-msg">No leave balances found for this year.</p>
   }
 </div>
 
-<div class="section-header">
-  <h3>Recent Requests</h3>
-  <a mat-raised-button color="primary" routerLink="/employee/apply">+ Apply for Leave</a>
-</div>
+<!-- Recent requests -->
+<div class="section-card">
+  <div class="section-head">
+    <h3>Recent Requests</h3>
+  </div>
 
-<div class="recent-list">
-  @for (r of recentRequests; track r.id) {
-    <mat-card class="request-row">
-      <mat-card-content class="request-content">
-        <span>{{ r.leaveTypeName }}</span>
-        <span>{{ r.startDate }} → {{ r.endDate }}</span>
-        <span>{{ r.totalDays }} days</span>
-        <app-status-badge [status]="r.status" />
-      </mat-card-content>
-    </mat-card>
-  }
-  @empty {
-    <p>No requests yet. <a routerLink="/employee/apply">Apply for leave</a>.</p>
+  @if (recentRequests.length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No requests yet. <a routerLink="/employee/apply">Apply for leave</a></p>
+    </div>
+  } @else {
+    <table class="requests-table">
+      <thead>
+        <tr>
+          <th>Leave Type</th>
+          <th>Dates</th>
+          <th>Days</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of recentRequests; track r.id) {
+          <tr>
+            <td>{{ r.leaveTypeName }}</td>
+            <td>{{ r.startDate | date:'mediumDate' }} → {{ r.endDate | date:'mediumDate' }}</td>
+            <td>{{ r.totalDays }}</td>
+            <td><span class="status-pill {{ r.status.toLowerCase() }}">{{ r.status }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
   }
 </div>

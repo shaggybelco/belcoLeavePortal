@@ -1,5 +1,6 @@
 using System.Text;
 using LeavePlatform.API.Data;
+using Scalar.AspNetCore;
 using LeavePlatform.API.Repositories;
 using LeavePlatform.API.Repositories.Interfaces;
 using LeavePlatform.API.Services;
@@ -84,17 +85,21 @@ builder.Services.AddScoped<IReportService, ReportService>();
 
 var app = builder.Build();
 
-// Auto-apply migrations on startup (safe: EF migrations are idempotent)
+// Auto-apply migrations and seed demo data on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
+    await DataSeeder.SeedAsync(db);
 }
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-}
+    options.Title = "Leave Platform API";
+    options.Theme = ScalarTheme.Purple;
+    options.WithHttpBearerAuthentication(bearer => bearer.Token = string.Empty);
+});
 
 app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");

@@ -4,12 +4,88 @@ html {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
+      primary: mat.$violet-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --sidebar-bg: #0f172a;
+  --sidebar-width: 240px;
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,.12);
+}
+
 * { box-sizing: border-box; }
-body { margin: 0; font-family: Roboto, Arial, sans-serif; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Global card overrides ───────────────────────────────── */
+.mat-mdc-card {
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border);
+}
+
+/* ── Page header used across all pages ───────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  h1, h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+  p { margin: 4px 0 0; color: var(--text-muted); font-size: 0.9rem; }
+}
+
+/* ── Status chips ────────────────────────────────────────── */
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+
+  &.pending  { background: #fef3c7; color: #92400e; }
+  &.approved { background: #dcfce7; color: #166534; }
+  &.rejected { background: #fee2e2; color: #991b1b; }
+  &.cancelled{ background: #f1f5f9; color: #64748b; }
+}
+
+/* ── Table tweaks ────────────────────────────────────────── */
+.mat-mdc-table { width: 100%; }
+th.mat-mdc-header-cell {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-muted);
+}
+tr.mat-mdc-row:hover { background: #f8fafc; }
+
+/* ── Form spacing ────────────────────────────────────────── */
+mat-form-field { display: block; margin-bottom: 4px; }
