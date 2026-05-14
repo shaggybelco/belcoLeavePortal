@@ -13,7 +13,7 @@
     </div>
 
     <nav class="sidebar-nav">
-      @if (role() === 'Employee' || role() === 'Admin') {
+      @if (role() === 'Employee' || role() === 'Manager' || role() === 'Admin') {
         <div class="nav-group-label">Employee</div>
         <a class="nav-item" routerLink="/employee/dashboard" routerLinkActive="active">
           <mat-icon>dashboard</mat-icon>
