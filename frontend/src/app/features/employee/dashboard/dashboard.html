@@ -9,6 +9,9 @@
 </div>
 
 <!-- Leave balance cards -->
+@if (loading) {
+  <app-loading message="Loading your dashboard..." />
+} @else {
 <div class="balance-grid">
   @for (b of balances; track b.id) {
     <div class="balance-card" [style.--accent]="colorFor(b.leaveTypeName)">
@@ -68,3 +71,4 @@
     </table>
   }
 </div>
+}
