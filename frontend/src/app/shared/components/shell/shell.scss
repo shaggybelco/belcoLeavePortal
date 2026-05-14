@@ -210,6 +210,11 @@
   text-transform: uppercase;
 }
 
+/* ── Mobile top bar ───────────────────────────────────────── */
+.mobile-topbar {
+  display: none; /* hidden on desktop */
+}
+
 /* ── Mobile bottom nav ────────────────────────────────────── */
 .mobile-nav {
   display: none; /* hidden on desktop */
@@ -225,9 +230,43 @@
     display: none;
   }
 
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f172a;
+    padding: 0 12px;
+    height: 52px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+
+  .mobile-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: .9rem;
+    font-weight: 700;
+  }
+
+  .mobile-topbar-logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    mat-icon { color: white; font-size: 18px; width: 18px; height: 18px; }
+  }
+
+  .mobile-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   .main-content {
-    padding: 16px 16px 80px; /* bottom room for nav bar */
-    height: calc(100dvh - 64px);
+    padding: 16px 16px 80px;
+    height: calc(100dvh - 52px - 64px); /* viewport minus topbar minus bottom nav */
   }
 
   .mobile-nav {

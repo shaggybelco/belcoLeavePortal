@@ -88,4 +88,14 @@
   .actions-cell { white-space: nowrap; }
   .warn-icon  { color: #ef4444 !important; }
   .reset-icon { color: #f59e0b !important; }
+
+  @media (max-width: 768px) {
+    .page-header {
+      margin-bottom: 16px;
+      h2 { font-size: 1.2rem; }
+      .add-btn span { display: none; }
+    }
+    mat-card { overflow-x: auto; }
+    table { min-width: 620px; }
+  }
 </style>

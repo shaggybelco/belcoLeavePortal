@@ -75,6 +75,22 @@
     </div>
   </aside>
 
+  <!-- ── Mobile top bar ────────────────────── -->
+  <header class="mobile-topbar">
+    <div class="mobile-topbar-brand">
+      <div class="mobile-topbar-logo"><mat-icon>event_available</mat-icon></div>
+      <span>Belco Leave</span>
+    </div>
+    <div class="mobile-topbar-actions">
+      <button class="icon-btn" (click)="openChangePassword()" title="Change Password">
+        <mat-icon>lock_reset</mat-icon>
+      </button>
+      <button class="icon-btn" (click)="logout()" title="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </header>
+
   <!-- ── Main content ───────────────────────── -->
   <main class="main-content">
 
