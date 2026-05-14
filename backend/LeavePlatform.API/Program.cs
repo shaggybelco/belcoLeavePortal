@@ -1,5 +1,6 @@
 using System.Text;
 using LeavePlatform.API.Data;
+using Scalar.AspNetCore;
 using LeavePlatform.API.Repositories;
 using LeavePlatform.API.Repositories.Interfaces;
 using LeavePlatform.API.Services;
@@ -91,10 +92,13 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-}
+    options.Title = "Leave Platform API";
+    options.Theme = ScalarTheme.Purple;
+    options.WithHttpBearerAuthentication(bearer => bearer.Token = string.Empty);
+});
 
 app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
