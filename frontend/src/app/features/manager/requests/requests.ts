@@ -4,17 +4,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { DatePipe } from '@angular/common';
 import { LeaveRequestService } from '../../../core/services/leave-request.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LeaveRequest } from '../../../core/models/leave-request.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { ReviewDialogComponent } from './review-dialog';
 
 @Component({
   selector: 'app-manager-requests',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatCardModule, MatIconModule, DatePipe, StatusBadgeComponent],
+  imports: [MatTableModule, MatButtonModule, MatCardModule,
+    MatIconModule, StatusBadgeComponent, LoadingComponent],
   templateUrl: './requests.html'
 })
 export class ManagerRequestsComponent implements OnInit {
@@ -24,15 +25,18 @@ export class ManagerRequestsComponent implements OnInit {
 
   requests: LeaveRequest[] = [];
   columns = ['employee', 'leaveType', 'dates', 'days', 'status', 'actions'];
+  loading = true;
+
   get isAdmin() { return this.auth.role() === 'Admin'; }
 
   ngOnInit() { this.load(); }
 
   load() {
+    this.loading = true;
     const obs = this.auth.role() === 'Admin'
       ? this.requestService.getAll()
       : this.requestService.getTeam();
-    obs.subscribe(r => this.requests = r);
+    obs.subscribe(r => { this.requests = r; this.loading = false; });
   }
 
   review(r: LeaveRequest, action: 'Approved' | 'Rejected') {
@@ -46,7 +50,7 @@ export class ManagerRequestsComponent implements OnInit {
         days:         r.totalDays
       }
     }).afterClosed().subscribe((comment: string | null) => {
-      if (comment === null) return; // cancelled
+      if (comment === null) return;
       this.requestService.review(r.id, { action, managerComment: comment || undefined })
         .subscribe(() => this.load());
     });

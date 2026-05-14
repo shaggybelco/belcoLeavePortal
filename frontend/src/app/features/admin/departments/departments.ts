@@ -7,12 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DepartmentService } from '../../../core/services/department.service';
 import { Department } from '../../../core/models/department.model';
+import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-departments',
   standalone: true,
   imports: [ReactiveFormsModule, MatTableModule, MatButtonModule, MatCardModule,
-    MatFormFieldModule, MatInputModule],
+    MatFormFieldModule, MatInputModule, LoadingComponent],
   templateUrl: './departments.html'
 })
 export class AdminDepartmentsComponent implements OnInit {
@@ -23,9 +24,14 @@ export class AdminDepartmentsComponent implements OnInit {
   columns = ['name', 'actions'];
   form = this.fb.group({ name: ['', Validators.required] });
   editingId: string | null = null;
+  loading = true;
 
   ngOnInit() { this.load(); }
-  load() { this.deptService.getAll().subscribe(d => this.departments = d); }
+
+  load() {
+    this.loading = true;
+    this.deptService.getAll().subscribe(d => { this.departments = d; this.loading = false; });
+  }
 
   save() {
     if (this.form.invalid) return;
