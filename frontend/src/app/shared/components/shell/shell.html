@@ -92,4 +92,38 @@
     <router-outlet />
   </main>
 
+  <!-- ── Mobile bottom nav ──────────────────── -->
+  <nav class="mobile-nav">
+    @if (role() === 'Employee' || role() === 'Manager' || role() === 'Admin') {
+      <a class="mobile-nav-item" routerLink="/employee/dashboard" routerLinkActive="active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Home</span>
+      </a>
+      <a class="mobile-nav-item" routerLink="/employee/apply" routerLinkActive="active">
+        <mat-icon>add_circle_outline</mat-icon>
+        <span>Apply</span>
+      </a>
+      <a class="mobile-nav-item" routerLink="/employee/history" routerLinkActive="active">
+        <mat-icon>history</mat-icon>
+        <span>My Leave</span>
+      </a>
+    }
+    @if (role() === 'Manager' || role() === 'Admin') {
+      <a class="mobile-nav-item" routerLink="/manager/requests" routerLinkActive="active">
+        <mat-icon>approval</mat-icon>
+        <span>Approvals</span>
+      </a>
+    }
+    @if (role() === 'Admin') {
+      <a class="mobile-nav-item" routerLink="/admin/users" routerLinkActive="active">
+        <mat-icon>people</mat-icon>
+        <span>Users</span>
+      </a>
+      <a class="mobile-nav-item" routerLink="/admin/reports" routerLinkActive="active">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Reports</span>
+      </a>
+    }
+  </nav>
+
 </div>

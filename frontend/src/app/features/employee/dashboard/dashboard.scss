@@ -1,7 +1,17 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+  p  { margin: 4px 0 0; color: #64748b; font-size: .875rem; }
+}
+
 .apply-btn {
   background: #6366f1 !important; color: white !important;
   border-radius: 10px !important; font-weight: 600 !important;
   display: flex; align-items: center; gap: 4px;
+  flex-shrink: 0;
 }
 
 /* ── Balance grid ─────────────────────────────────────────── */
@@ -88,6 +98,28 @@
   td { padding: 12px 12px; border-bottom: 1px solid #f8fafc; font-size: .875rem; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #fafbff; }
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .balance-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-card { padding: 16px; }
+
+  .section-head h3 { font-size: .9rem; }
+
+  .requests-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .apply-btn span { display: none; } /* icon only on mobile */
 }
 
 /* ── Empty state ──────────────────────────────────────────── */
