@@ -1,0 +1,19 @@
+name: CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy-backend:
+    name: Deploy API to Render
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          curl --fail -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          echo "Render deploy triggered"
+
+  # Vercel watches the main branch directly via its GitHub integration.
+  # No job needed here — it deploys automatically on every push to main.
