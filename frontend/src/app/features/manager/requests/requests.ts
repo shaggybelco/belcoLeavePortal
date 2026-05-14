@@ -8,14 +8,13 @@ import { LeaveRequestService } from '../../../core/services/leave-request.servic
 import { AuthService } from '../../../core/services/auth.service';
 import { LeaveRequest } from '../../../core/models/leave-request.model';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
-import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { ReviewDialogComponent, ReviewDialogData } from './review-dialog';
 
 @Component({
   selector: 'app-manager-requests',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatCardModule,
-    MatIconModule, StatusBadgeComponent, LoadingComponent],
+    MatIconModule, StatusBadgeComponent],
   templateUrl: './requests.html'
 })
 export class ManagerRequestsComponent implements OnInit {
@@ -25,21 +24,16 @@ export class ManagerRequestsComponent implements OnInit {
 
   requests: LeaveRequest[] = [];
   columns = ['employee', 'leaveType', 'dates', 'days', 'status', 'actions'];
-  loading = true;
 
   get isAdmin() { return this.auth.role() === 'Admin'; }
 
   ngOnInit() { this.load(); }
 
   load() {
-    this.loading = true;
     const obs = this.auth.role() === 'Admin'
       ? this.requestService.getAll()
       : this.requestService.getTeam();
-    obs.subscribe(r => {
-      this.requests = r;
-      this.loading  = false;
-    });
+    obs.subscribe(r => this.requests = r);
   }
 
   review(request: LeaveRequest, action: 'Approved' | 'Rejected') {

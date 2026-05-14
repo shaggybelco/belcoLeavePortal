@@ -9,13 +9,11 @@ import { LeaveTypeService } from '../../../core/services/leave-type.service';
 import { LeaveType } from '../../../core/models/leave-type.model';
 import { LeaveTypeFormDialogComponent, LeaveTypeFormData } from './leave-type-form-dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
-import { LoadingComponent } from '../../../shared/components/loading/loading';
-
 @Component({
   selector: 'app-admin-leave-types',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatCardModule,
-    MatIconModule, MatChipsModule, LoadingComponent],
+    MatIconModule, MatChipsModule],
   templateUrl: './leave-types.html'
 })
 export class AdminLeaveTypesComponent implements OnInit {
@@ -24,17 +22,10 @@ export class AdminLeaveTypesComponent implements OnInit {
 
   leaveTypes: LeaveType[] = [];
   columns = ['name', 'days', 'status', 'actions'];
-  loading = true;
 
   ngOnInit() { this.load(); }
 
-  load() {
-    this.loading = true;
-    this.leaveTypeService.getAll().subscribe(t => {
-      this.leaveTypes = t;
-      this.loading = false;
-    });
-  }
+  load() { this.leaveTypeService.getAll().subscribe(t => this.leaveTypes = t); }
 
   openAdd() {
     this.dialog.open<LeaveTypeFormDialogComponent, LeaveTypeFormData>(LeaveTypeFormDialogComponent, {

@@ -3,7 +3,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { LoadingComponent } from '../../../shared/components/loading/loading';
 import { LeaveBalanceService } from '../../../core/services/leave-balance.service';
 import { LeaveRequestService } from '../../../core/services/leave-request.service';
 import { LeaveBalance } from '../../../core/models/leave-balance.model';
@@ -26,7 +25,7 @@ const LEAVE_ICONS: Record<string, string> = {
 @Component({
   selector: 'app-employee-dashboard',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, RouterLink, DatePipe, LoadingComponent],
+  imports: [MatIconModule, MatButtonModule, RouterLink, DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -37,10 +36,9 @@ export class EmployeeDashboardComponent implements OnInit {
   balances: LeaveBalance[] = [];
   recentRequests: LeaveRequest[] = [];
   year = new Date().getFullYear();
-  loading = true;
 
   ngOnInit() {
-    this.balanceService.getMine().subscribe(b => { this.balances = b; this.loading = false; });
+    this.balanceService.getMine().subscribe(b => this.balances = b);
     this.requestService.getMine().subscribe(r => this.recentRequests = r.slice(0, 5));
   }
 
