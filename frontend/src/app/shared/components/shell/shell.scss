@@ -135,4 +135,41 @@
   overflow-y: auto;
   padding: 28px 32px;
   background: #f1f5f9;
+  position: relative;
+}
+
+/* ── Global loading bar ───────────────────────────────────── */
+.global-loading-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 1000;
+  background: transparent;
+  margin-bottom: -3px; /* collapse so it doesn't push content */
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+    border-radius: 0 2px 2px 0;
+    transition: width 0.1s ease;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+  }
+
+  &.active::after {
+    width: 85%;
+    transition: width 8s cubic-bezier(0.1, 0.05, 0, 1);
+  }
+
+  &:not(.active)::after {
+    width: 100%;
+    transition: width 0.2s ease;
+    opacity: 0;
+    transition: width 0.2s ease, opacity 0.3s ease 0.1s;
+  }
 }

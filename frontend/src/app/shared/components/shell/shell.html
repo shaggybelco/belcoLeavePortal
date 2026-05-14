@@ -74,6 +74,7 @@
 
   <!-- ── Main content ───────────────────────── -->
   <main class="main-content">
+    <div class="global-loading-bar" [class.active]="loading.isLoading()"></div>
     <router-outlet />
   </main>
 
