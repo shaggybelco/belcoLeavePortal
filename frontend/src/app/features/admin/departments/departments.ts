@@ -8,12 +8,11 @@ import { DepartmentService } from '../../../core/services/department.service';
 import { Department } from '../../../core/models/department.model';
 import { DepartmentFormDialogComponent, DepartmentFormData } from './department-form-dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/components/confirm-dialog/confirm-dialog';
-import { LoadingComponent } from '../../../shared/components/loading/loading';
 
 @Component({
   selector: 'app-admin-departments',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatCardModule, MatIconModule, LoadingComponent],
+  imports: [MatTableModule, MatButtonModule, MatCardModule, MatIconModule],
   templateUrl: './departments.html'
 })
 export class AdminDepartmentsComponent implements OnInit {
@@ -22,17 +21,10 @@ export class AdminDepartmentsComponent implements OnInit {
 
   departments: Department[] = [];
   columns = ['name', 'actions'];
-  loading = true;
 
   ngOnInit() { this.load(); }
 
-  load() {
-    this.loading = true;
-    this.deptService.getAll().subscribe(d => {
-      this.departments = d;
-      this.loading = false;
-    });
-  }
+  load() { this.deptService.getAll().subscribe(d => this.departments = d); }
 
   openAdd() {
     this.dialog.open<DepartmentFormDialogComponent, DepartmentFormData>(DepartmentFormDialogComponent, {

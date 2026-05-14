@@ -9,54 +9,42 @@
   </button>
 </div>
 
-@if (loading) {
-  <app-loading message="Loading leave types..." />
-} @else {
-  <mat-card>
-    <table mat-table [dataSource]="leaveTypes" style="width:100%">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let t">
-          <div class="type-cell">
-            <div class="type-icon">
-              <mat-icon>beach_access</mat-icon>
-            </div>
-            {{ t.name }}
-          </div>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="days">
-        <th mat-header-cell *matHeaderCellDef>Days / Year</th>
-        <td mat-cell *matCellDef="let t">
-          <span class="days-badge">{{ t.defaultDays }} days</span>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let t">
-          <span class="status-pill" [class.active]="t.isActive" [class.inactive]="!t.isActive">
-            {{ t.isActive ? 'Active' : 'Inactive' }}
-          </span>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let t" class="actions-cell">
-          <button mat-icon-button title="Edit" (click)="openEdit(t)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          @if (t.isActive) {
-            <button mat-icon-button title="Deactivate" class="warn-icon" (click)="deactivate(t)">
-              <mat-icon>block</mat-icon>
-            </button>
-          }
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-    </table>
-  </mat-card>
-}
+<mat-card>
+  <table mat-table [dataSource]="leaveTypes" style="width:100%">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let t">
+        <div class="type-cell">
+          <div class="type-icon"><mat-icon>beach_access</mat-icon></div>
+          {{ t.name }}
+        </div>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="days">
+      <th mat-header-cell *matHeaderCellDef>Days / Year</th>
+      <td mat-cell *matCellDef="let t"><span class="days-badge">{{ t.defaultDays }} days</span></td>
+    </ng-container>
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let t">
+        <span class="status-pill" [class.active]="t.isActive" [class.inactive]="!t.isActive">
+          {{ t.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let t" class="actions-cell">
+        <button mat-icon-button title="Edit" (click)="openEdit(t)"><mat-icon>edit</mat-icon></button>
+        @if (t.isActive) {
+          <button mat-icon-button title="Deactivate" class="warn-icon" (click)="deactivate(t)"><mat-icon>block</mat-icon></button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+  </table>
+</mat-card>
 
 <style>
   .page-header {
@@ -65,37 +53,26 @@
     h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
     p  { margin: 4px 0 0; color: #64748b; font-size: .875rem; }
   }
-
   .add-btn {
     background: #6366f1 !important; color: white !important;
     border-radius: 10px !important; font-weight: 600;
     display: flex; align-items: center; gap: 6px;
   }
-
-  .type-cell {
-    display: flex; align-items: center; gap: 10px;
-  }
-
+  .type-cell { display: flex; align-items: center; gap: 10px; }
   .type-icon {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: #fef3c7;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+    width: 34px; height: 34px; border-radius: 8px; background: #fef3c7;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     mat-icon { color: #f59e0b; font-size: 18px; width: 18px; height: 18px; }
   }
-
   .days-badge {
     padding: 3px 10px; border-radius: 20px;
-    background: #dbeafe; color: #3b82f6;
-    font-size: .75rem; font-weight: 600;
+    background: #dbeafe; color: #3b82f6; font-size: .75rem; font-weight: 600;
   }
-
   .status-pill {
     padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600;
     &.active   { background: #f0fdf4; color: #22c55e; }
     &.inactive { background: #fef2f2; color: #ef4444; }
   }
-
   .actions-cell { white-space: nowrap; text-align: right; }
   .warn-icon { color: #ef4444 !important; }
 </style>
