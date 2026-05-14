@@ -76,6 +76,21 @@ body {
   &.cancelled{ background: #f1f5f9; color: #64748b; }
 }
 
+/* ── Action buttons ──────────────────────────────────────── */
+.approve-btn {
+  background: #dcfce7 !important; color: #166534 !important;
+  border-radius: 8px !important; font-weight: 600 !important;
+  margin-right: 6px !important;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { background: #bbf7d0 !important; }
+}
+.reject-btn {
+  background: #fee2e2 !important; color: #991b1b !important;
+  border-radius: 8px !important; font-weight: 600 !important;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { background: #fecaca !important; }
+}
+
 /* ── Table tweaks ────────────────────────────────────────── */
 .mat-mdc-table { width: 100%; }
 th.mat-mdc-header-cell {

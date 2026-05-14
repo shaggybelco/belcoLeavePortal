@@ -1,18 +1,9 @@
-<h2>Team Leave Requests</h2>
-
-@if (reviewingId) {
-  <mat-card style="max-width:420px; margin-bottom:16px; background:#fff8e1">
-    <mat-card-content>
-      <p><strong>{{ reviewAction }} request</strong></p>
-      <mat-form-field appearance="outline" style="width:100%">
-        <mat-label>Comment (optional)</mat-label>
-        <textarea matInput [(ngModel)]="reviewComment" rows="2"></textarea>
-      </mat-form-field>
-      <button mat-raised-button color="primary" (click)="confirmReview()">Confirm</button>
-      <button mat-button (click)="cancelReview()" style="margin-left:8px">Cancel</button>
-    </mat-card-content>
-  </mat-card>
-}
+<div class="page-header">
+  <div>
+    <h2>{{ isAdmin ? 'All Leave Requests' : 'Team Requests' }}</h2>
+    <p>{{ isAdmin ? 'All requests across the organisation' : 'Requests from your direct reports' }}</p>
+  </div>
+</div>
 
 <mat-card>
   @if (loading) {
@@ -43,8 +34,8 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let r">
           @if (r.status === 'Pending') {
-            <button mat-button color="primary" (click)="startReview(r.id, 'Approved')">Approve</button>
-            <button mat-button color="warn" (click)="startReview(r.id, 'Rejected')">Reject</button>
+            <button mat-button color="primary" (click)="review(r, 'Approved')">Approve</button>
+            <button mat-button color="warn" (click)="review(r, 'Rejected')">Reject</button>
           }
         </td>
       </ng-container>

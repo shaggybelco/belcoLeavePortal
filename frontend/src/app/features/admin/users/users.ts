@@ -7,11 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../core/services/user.service';
 import { DepartmentService } from '../../../core/services/department.service';
 import { User } from '../../../core/models/user.model';
 import { Department } from '../../../core/models/department.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-admin-users',
@@ -27,6 +29,7 @@ export class AdminUsersComponent implements OnInit {
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
   private deptService = inject(DepartmentService);
+  private dialog = inject(MatDialog);
 
   users: User[] = [];
   departments: Department[] = [];
@@ -92,7 +95,17 @@ export class AdminUsersComponent implements OnInit {
   }
 
   deactivate(id: string) {
-    if (!confirm('Deactivate this user?')) return;
-    this.userService.deactivate(id).subscribe(() => this.load());
+    this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Deactivate User',
+        message: 'This user will lose access to the portal immediately. You can reactivate them later by editing their profile.',
+        confirmLabel: 'Deactivate',
+        confirmColor: 'warn',
+        icon: 'person_off'
+      }
+    }).afterClosed().subscribe(confirmed => {
+      if (confirmed) this.userService.deactivate(id).subscribe(() => this.load());
+    });
   }
 }
