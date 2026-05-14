@@ -11,7 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
 const DEMO_ACCOUNTS = {
   admin:    { email: 'admin@belco.co.za',           password: 'Admin@1234' },
-  manager:  { email: 'sarah.dlamini@belco.co.za',   password: 'Manager@1234' },
+  manager:  { email: 'thabo.nkosi@belco.co.za',      password: 'Manager@1234' },
   employee: { email: 'lebo.mokoena@belco.co.za',    password: 'Employee@1234' },
 };
 
