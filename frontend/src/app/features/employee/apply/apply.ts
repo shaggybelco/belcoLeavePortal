@@ -12,7 +12,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { LeaveTypeService } from '../../../core/services/leave-type.service';
 import { LeaveRequestService } from '../../../core/services/leave-request.service';
+import { LeaveBalanceService } from '../../../core/services/leave-balance.service';
 import { LeaveType } from '../../../core/models/leave-type.model';
+import { LeaveBalance } from '../../../core/models/leave-balance.model';
 
 @Component({
   selector: 'app-apply-leave',
@@ -25,12 +27,14 @@ import { LeaveType } from '../../../core/models/leave-type.model';
   templateUrl: './apply.html'
 })
 export class ApplyLeaveComponent implements OnInit {
-  private fb                = inject(FormBuilder);
-  private leaveTypeService  = inject(LeaveTypeService);
-  private requestService    = inject(LeaveRequestService);
-  private router            = inject(Router);
+  private fb                  = inject(FormBuilder);
+  private leaveTypeService    = inject(LeaveTypeService);
+  private requestService      = inject(LeaveRequestService);
+  private balanceService      = inject(LeaveBalanceService);
+  private router              = inject(Router);
 
-  leaveTypes: LeaveType[] = [];
+  leaveTypes: LeaveType[]   = [];
+  balances:   LeaveBalance[] = [];
   error   = '';
   success = false;
   today   = new Date();
@@ -46,10 +50,16 @@ export class ApplyLeaveComponent implements OnInit {
     this.leaveTypeService.getAll().subscribe(types =>
       this.leaveTypes = types.filter(t => t.isActive)
     );
+    this.balanceService.getMine().subscribe(b => this.balances = b);
   }
 
   get selectedType(): LeaveType | undefined {
     return this.leaveTypes.find(t => t.id === this.form.value.leaveTypeId);
+  }
+
+  get selectedBalance(): LeaveBalance | undefined {
+    if (!this.selectedType) return undefined;
+    return this.balances.find(b => b.leaveTypeName === this.selectedType!.name);
   }
 
   get dayCount(): number {
@@ -57,6 +67,11 @@ export class ApplyLeaveComponent implements OnInit {
     if (!startDate || !endDate) return 0;
     const diff = (endDate as Date).getTime() - (startDate as Date).getTime();
     return Math.max(0, Math.round(diff / 86_400_000) + 1);
+  }
+
+  get remainingAfter(): number | null {
+    if (!this.selectedBalance || this.dayCount === 0) return null;
+    return this.selectedBalance.remainingDays - this.dayCount;
   }
 
   submit() {

@@ -107,13 +107,6 @@
         </div>
 
         <div class="summary-item">
-          <span class="summary-label">Entitlement</span>
-          <span class="summary-value">
-            {{ selectedType ? selectedType.defaultDays + ' days / year' : '—' }}
-          </span>
-        </div>
-
-        <div class="summary-item">
           <span class="summary-label">Start Date</span>
           <span class="summary-value">
             {{ form.value.startDate ? (form.value.startDate | date:'d MMM yyyy') : '—' }}
@@ -131,6 +124,32 @@
           <span class="days-number">{{ dayCount }}</span>
           <span class="days-label">day{{ dayCount !== 1 ? 's' : '' }} requested</span>
         </div>
+
+        @if (selectedBalance) {
+          <div class="balance-preview">
+            <div class="balance-row">
+              <span class="balance-row-label">Current balance</span>
+              <span class="balance-row-value">{{ selectedBalance.remainingDays }} days</span>
+            </div>
+            @if (dayCount > 0) {
+              <div class="balance-row deduction">
+                <span class="balance-row-label">This request</span>
+                <span class="balance-row-value">− {{ dayCount }} days</span>
+              </div>
+              <div class="balance-divider"></div>
+              <div class="balance-row result" [class.over]="remainingAfter! < 0">
+                <span class="balance-row-label">Balance after</span>
+                <span class="balance-row-value">{{ remainingAfter }} days</span>
+              </div>
+              @if (remainingAfter! < 0) {
+                <div class="over-warning">
+                  <mat-icon>warning_amber</mat-icon>
+                  You're {{ remainingAfter! * -1 }} day{{ remainingAfter! < -1 ? 's' : '' }} over your balance
+                </div>
+              }
+            }
+          </div>
+        }
       </mat-card>
 
       <mat-card class="tips-card">
@@ -276,6 +295,42 @@
       .days-number { color: #6366f1; }
       .days-label  { color: #7c3aed; }
     }
+  }
+
+  /* ── Balance preview ── */
+  .balance-preview {
+    margin-top: 14px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 14px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .balance-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .85rem;
+  }
+
+  .balance-row-label { color: #64748b; }
+  .balance-row-value { font-weight: 600; color: #1e293b; }
+
+  .balance-row.deduction .balance-row-value { color: #f59e0b; }
+
+  .balance-divider {
+    height: 1px; background: #e2e8f0; margin: 2px 0;
+  }
+
+  .balance-row.result .balance-row-label { font-weight: 700; color: #1e293b; }
+  .balance-row.result .balance-row-value { font-size: .95rem; color: #22c55e; }
+
+  .balance-row.result.over .balance-row-value { color: #ef4444; }
+
+  .over-warning {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 4px; padding: 8px 10px;
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 8px; color: #ef4444;
+    font-size: .78rem; font-weight: 500;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; }
   }
 
   /* ── Tips card ── */
