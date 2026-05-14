@@ -14,9 +14,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// Database
+// Database — convert URI format to key-value if needed (Neon/Render compatibility)
+static string ResolveConnectionString(string? raw)
+{
+    if (string.IsNullOrWhiteSpace(raw)) return raw ?? string.Empty;
+    if (!raw.StartsWith("postgresql://") && !raw.StartsWith("postgres://")) return raw;
+    var withoutQuery = raw.Split('?')[0];
+    var uri = new Uri(withoutQuery);
+    var parts = uri.UserInfo.Split(':', 2);
+    return $"Host={uri.Host};Database={uri.AbsolutePath.TrimStart('/')};Username={parts[0]};Password={parts[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+var connectionString = ResolveConnectionString(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
