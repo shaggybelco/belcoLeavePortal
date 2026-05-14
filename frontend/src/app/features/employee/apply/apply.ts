@@ -36,8 +36,10 @@ export class ApplyLeaveComponent implements OnInit {
   leaveTypes: LeaveType[]   = [];
   balances:   LeaveBalance[] = [];
   error   = '';
-  success = false;
   today   = new Date();
+
+  /** ISO date strings (YYYY-MM-DD) that are already booked (Pending or Approved). */
+  private bookedDates = new Set<string>();
 
   form = this.fb.group({
     leaveTypeId:     ['', Validators.required],
@@ -46,11 +48,33 @@ export class ApplyLeaveComponent implements OnInit {
     employeeComment: ['']
   });
 
+  /**
+   * Passed directly to [dateFilter] on both datepickers.
+   * Must be an arrow function so `this` stays bound after Angular calls it.
+   */
+  dateFilter = (d: Date | null): boolean => {
+    if (!d) return false;
+    return !this.bookedDates.has(this.fmt(d));
+  };
+
   ngOnInit() {
     this.leaveTypeService.getAll().subscribe(types =>
       this.leaveTypes = types.filter(t => t.isActive)
     );
     this.balanceService.getMine().subscribe(b => this.balances = b);
+    this.requestService.getMine().subscribe(requests => {
+      this.bookedDates.clear();
+      requests
+        .filter(r => r.status === 'Pending' || r.status === 'Approved')
+        .forEach(r => {
+          const cur = new Date(r.startDate);
+          const end = new Date(r.endDate);
+          while (cur <= end) {
+            this.bookedDates.add(this.fmt(cur));
+            cur.setDate(cur.getDate() + 1);
+          }
+        });
+    });
   }
 
   get selectedType(): LeaveType | undefined {
@@ -74,8 +98,21 @@ export class ApplyLeaveComponent implements OnInit {
     return this.selectedBalance.remainingDays - this.dayCount;
   }
 
+  /** True when the chosen date range overlaps at least one already-booked day. */
+  get hasDateConflict(): boolean {
+    const { startDate, endDate } = this.form.value;
+    if (!startDate || !endDate) return false;
+    const cur = new Date(startDate);
+    const end = new Date(endDate);
+    while (cur <= end) {
+      if (this.bookedDates.has(this.fmt(cur))) return true;
+      cur.setDate(cur.getDate() + 1);
+    }
+    return false;
+  }
+
   submit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.hasDateConflict) return;
     this.error = '';
     const { leaveTypeId, startDate, endDate, employeeComment } = this.form.value;
     this.requestService.create({

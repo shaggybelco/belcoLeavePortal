@@ -49,7 +49,8 @@
             <mat-form-field appearance="outline">
               <mat-label>Start Date</mat-label>
               <input matInput [matDatepicker]="startPicker"
-                formControlName="startDate" [min]="today" />
+                formControlName="startDate" [min]="today"
+                [matDatepickerFilter]="dateFilter" />
               <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
               <mat-datepicker #startPicker />
             </mat-form-field>
@@ -60,7 +61,8 @@
               <mat-label>End Date</mat-label>
               <input matInput [matDatepicker]="endPicker"
                 formControlName="endDate"
-                [min]="form.value.startDate ?? today" />
+                [min]="form.value.startDate ?? today"
+                [matDatepickerFilter]="dateFilter" />
               <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
               <mat-datepicker #endPicker />
             </mat-form-field>
@@ -80,6 +82,13 @@
           </mat-form-field>
         </div>
 
+        @if (hasDateConflict) {
+          <div class="error-banner">
+            <mat-icon>event_busy</mat-icon>
+            Your selected dates overlap with an existing Pending or Approved request. Please choose different dates.
+          </div>
+        }
+
         @if (error) {
           <div class="error-banner">
             <mat-icon>error_outline</mat-icon>
@@ -87,7 +96,7 @@
           </div>
         }
 
-        <button mat-flat-button class="submit-btn" type="submit" [disabled]="form.invalid">
+        <button mat-flat-button class="submit-btn" type="submit" [disabled]="form.invalid || hasDateConflict">
           <mat-icon>send</mat-icon>
           Submit Request
         </button>
